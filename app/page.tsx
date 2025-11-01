@@ -4,8 +4,10 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { UrlInput } from "@/components/url-input";
+import { LocalVideoUpload } from "@/components/local-video-upload";
 import { Card } from "@/components/ui/card";
-import { extractVideoId } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { extractVideoId, extractBilibiliId, detectVideoSource } from "@/lib/utils";
 import { toast } from "sonner";
 import { AuthModal } from "@/components/auth-modal";
 import { useModePreference } from "@/lib/hooks/use-mode-preference";
@@ -102,15 +104,46 @@ function HomeContent() {
 
   const handleSubmit = useCallback(
     (url: string) => {
-      const videoId = extractVideoId(url);
+      const source = detectVideoSource(url);
+      
+      if (!source) {
+        toast.error("Please enter a valid YouTube or Bilibili URL");
+        return;
+      }
+
+      let videoId: string | null = null;
+      if (source === 'youtube') {
+        videoId = extractVideoId(url);
+      } else if (source === 'bilibili') {
+        videoId = extractBilibiliId(url);
+      }
+
       if (!videoId) {
-        toast.error("Please enter a valid YouTube URL");
+        toast.error("Failed to extract video ID");
         return;
       }
 
       const params = new URLSearchParams();
       params.set("url", url);
+      params.set("source", source);
 
+      router.push(`/analyze/${videoId}?${params.toString()}`);
+    },
+    [router]
+  );
+
+  const handleLocalUploadComplete = useCallback(
+    (videoId: string, transcript: any[]) => {
+      // Store transcript in sessionStorage for the analyze page
+      try {
+        sessionStorage.setItem(`transcript_${videoId}`, JSON.stringify(transcript));
+      } catch (error) {
+        console.error('Failed to store transcript:', error);
+      }
+
+      const params = new URLSearchParams();
+      params.set("source", "local");
+      
       router.push(`/analyze/${videoId}?${params.toString()}`);
     },
     [router]
@@ -129,7 +162,18 @@ function HomeContent() {
             </p>
           </header>
           <div className="flex w-full flex-col items-center gap-9">
-            <UrlInput onSubmit={handleSubmit} mode={mode} onModeChange={setMode} />
+            <Tabs defaultValue="url" className="w-full max-w-[615px]">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="url">URL</TabsTrigger>
+                <TabsTrigger value="upload">Local Upload</TabsTrigger>
+              </TabsList>
+              <TabsContent value="url">
+                <UrlInput onSubmit={handleSubmit} mode={mode} onModeChange={setMode} />
+              </TabsContent>
+              <TabsContent value="upload">
+                <LocalVideoUpload onUploadComplete={handleLocalUploadComplete} />
+              </TabsContent>
+            </Tabs>
 
             <Card className="relative flex w-[425px] max-w-full flex-col gap-2.5 overflow-hidden rounded-[22px] border border-[#f0f1f1] bg-white p-6 text-left shadow-[2px_11px_40.4px_rgba(0,0,0,0.06)]">
               <div className="relative z-10 flex flex-col gap-2.5">
@@ -137,7 +181,7 @@ function HomeContent() {
                   Jump to top insights immediately
                 </h3>
                 <p className="max-w-[60%] text-[14px] leading-[1.5] text-[#8d8d8d]">
-                  Paste a link, and we&apos;ll generate highlight reels for you. Consume a 1-hour video in 5 minutes.
+                  Paste a YouTube/Bilibili link or upload local video with subtitles. We&apos;ll generate highlight reels for you.
                 </p>
               </div>
               <div className="pointer-events-none absolute right-[10px] top-[-00px] h-[110px] w-[110px]">

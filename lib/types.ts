@@ -1,3 +1,6 @@
+// Video source types
+export type VideoSource = 'youtube' | 'bilibili' | 'local';
+
 export interface TranscriptSegment {
   text: string;
   start: number;
@@ -46,6 +49,7 @@ export interface VideoData {
   title: string;
   transcript: TranscriptSegment[];
   topics: Topic[];
+  source?: VideoSource;
 }
 
 export interface Citation {
@@ -118,6 +122,31 @@ export interface VideoInfo {
   duration: number | null;
   description?: string;
   tags?: string[];
+  source?: VideoSource;
+}
+
+// Collection types for video series
+export interface VideoCollection {
+  id: string;
+  userId: string;
+  title: string;
+  description?: string;
+  thumbnail?: string;
+  videoCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CollectionVideo {
+  id: string;
+  collectionId: string;
+  videoId: string;
+  order: number;
+  addedAt: string;
+}
+
+export interface CollectionWithVideos extends VideoCollection {
+  videos: Array<VideoInfo & { order: number }>;
 }
 
 // Playback command types for centralized control
