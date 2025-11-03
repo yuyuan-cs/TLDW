@@ -11,6 +11,34 @@ export function extractVideoId(url: string): string | null {
   return match ? match[1] : null;
 }
 
+export function extractBilibiliId(url: string): string | null {
+  // Support BV format: bilibili.com/video/BVxxx or b23.tv/xxx
+  const bvRegex = /(?:bilibili\.com\/video\/(BV[a-zA-Z0-9]+)|b23\.tv\/([a-zA-Z0-9]+))/;
+  const match = url.match(bvRegex);
+  if (match) {
+    return match[1] || match[2];
+  }
+  
+  // Support av format: bilibili.com/video/avxxx
+  const avRegex = /bilibili\.com\/video\/av(\d+)/;
+  const avMatch = url.match(avRegex);
+  if (avMatch) {
+    return `av${avMatch[1]}`;
+  }
+  
+  return null;
+}
+
+export function detectVideoSource(url: string): 'youtube' | 'bilibili' | null {
+  if (extractVideoId(url)) {
+    return 'youtube';
+  }
+  if (extractBilibiliId(url)) {
+    return 'bilibili';
+  }
+  return null;
+}
+
 export function formatDuration(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Loader2, ArrowUp, Link } from "lucide-react";
-import { extractVideoId } from "@/lib/utils";
+import { detectVideoSource } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -28,13 +28,13 @@ export function UrlInput({ onSubmit, isLoading = false, mode, onModeChange }: Ur
     setError("");
 
     if (!url.trim()) {
-      setError("Please enter a YouTube URL");
+      setError("Please enter a video URL");
       return;
     }
 
-    const videoId = extractVideoId(url);
-    if (!videoId) {
-      setError("Please enter a valid YouTube URL");
+    const source = detectVideoSource(url);
+    if (!source) {
+      setError("Please enter a valid YouTube or Bilibili URL");
       return;
     }
 
@@ -62,7 +62,7 @@ export function UrlInput({ onSubmit, isLoading = false, mode, onModeChange }: Ur
               onChange={(e) => setUrl(e.target.value)}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
-              placeholder="Paste Youtube URL link here..."
+              placeholder="Paste YouTube or Bilibili URL here..."
               className="flex-1 border-0 bg-transparent text-[14px] text-[#989999] placeholder:text-[#989999] focus:outline-none"
               disabled={isLoading}
             />

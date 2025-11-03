@@ -1,0 +1,31 @@
+1
+00:00:00,000 --> 00:00:05,000
+Welcome to this video tutorial.
+
+2
+00:00:05,000 --> 00:00:10,000
+Today we'll learn about video analysis.
+
+3
+00:00:10,000 --> 00:00:15,000
+First, let's understand the basics.
+
+4
+00:00:15,000 --> 00:00:20,000
+Video analysis helps you extract key insights.
+
+5
+00:00:20,000 --> 00:00:25,000
+You can save time by focusing on highlights.
+
+6
+00:00:25,000 --> 00:00:30,000
+Our system uses AI to identify important moments.
+
+7
+00:00:30,000 --> 00:00:35,000
+Let's see how it works in practice.
+
+8
+00:00:35,000 --> 00:00:40,000
+Thank you for watching this introduction.
